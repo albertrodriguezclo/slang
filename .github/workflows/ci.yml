@@ -162,7 +162,7 @@ jobs:
               [ -f "slang-wasm.wasm" ]
               [ -f "slang-wasm.js" ]
               node smoke/smoke-test.js smoke/rand_float.slang computeMain
-          if [[ "${{ matrix.platform }}" = "wasm-cpplib" ]]; then
+          elif [[ "${{ matrix.platform }}" = "wasm-cpplib" ]]; then
               git clone https://github.com/emscripten-core/emsdk.git
               pushd emsdk
                 ./emsdk install latest
