@@ -135,7 +135,7 @@
       "name": "emscripten",
       "configurePreset": "emscripten",
       "configuration": "Release",
-      "targets": ["slang-wasm"]
+      "targets": ["slang-wasm", "slang-wasm-cpplib"]
     },
     {
       "name": "generators",

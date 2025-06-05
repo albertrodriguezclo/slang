@@ -16,15 +16,18 @@ jobs:
         os: [linux, macos, windows]
         config: [debug, release]
         compiler: [gcc, clang, cl]
-        platform: [x86_64, aarch64, wasm]
+        platform: [x86_64, aarch64, wasm, wasm-cpplib]
         exclude:
           # Default to x64, but aarch64 on osx
           - { os: linux, platform: aarch64 }
           - { os: windows, platform: aarch64 }
           - { os: macos, platform: x86_64 }
           - { os: linux, config: debug, platform: wasm }
+          - { os: linux, config: debug, platform: wasm-cpplib }
           - { os: windows, platform: wasm }
+          - { os: windows, platform: wasm-cpplib }
           - { os: macos, platform: wasm }
+          - { os: macos, platform: wasm-cpplib }
           # Unused compiler configs
           - { os: linux, compiler: clang }
           - { os: linux, compiler: cl }
@@ -50,6 +53,7 @@ jobs:
           - full-gpu-tests: false
           - build-llvm: true
           - { platform: wasm, build-llvm: false }
+          - { platform: wasm-cpplib, build-llvm: false }
           # The runners don't have a GPU by default except for the self-hosted ones
           - has-gpu: false
           # Self-hosted aarch64 build
@@ -158,6 +162,18 @@ jobs:
               [ -f "slang-wasm.wasm" ]
               [ -f "slang-wasm.js" ]
               node smoke/smoke-test.js smoke/rand_float.slang computeMain
+          if [[ "${{ matrix.platform }}" = "wasm-cpplib" ]]; then
+              git clone https://github.com/emscripten-core/emsdk.git
+              pushd emsdk
+                ./emsdk install latest
+                ./emsdk activate latest
+                source ./emsdk_env.sh
+              popd
+              cmake --workflow --preset generators --fresh
+              mkdir generators
+              cmake --install build --config Release --component generators --prefix generators
+              emcmake cmake -DSLANG_GENERATORS_PATH=generators/bin --preset emscripten -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
+              cmake --build --preset emscripten --config "$cmake_config" --target slang-wasm-cpplib
           else
             if [[ "${{ matrix.os }}" =~ "windows" && "${{ matrix.config }}" != "release" && "${{ matrix.config }}" != "releaseWithDebugInfo" ]]; then
               # Doing a debug build will try to link against a release built llvm, this
@@ -186,7 +202,7 @@ jobs:
             fi
           fi
       - name: Test Slang
-        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && (matrix.platform != 'aarch64' || matrix.os == 'macos')
+        if: steps.filter.outputs.should-run == 'true'  && matrix.platform != 'wasm' && matrix.platform != 'wasm-cpplib' && (matrix.platform != 'aarch64' || matrix.os == 'macos')
         run: |
           export SLANG_RUN_SPIRV_VALIDATION=1
           export SLANG_USE_SPV_SOURCE_LANGUAGE_UNKNOWN=1
@@ -225,7 +241,7 @@ jobs:
               -enable-debug-layers false
           fi
       - name: Run Slang examples
-        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && matrix.full-gpu-tests
+        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && matrix.platform != 'wasm-cpplib' && matrix.full-gpu-tests
         run: |
           .github/workflows/ci-examples.sh \
            --bin-dir "$bin_dir" \
@@ -234,11 +250,11 @@ jobs:
            --config "${{matrix.config}}" \
            --skip-file tests/expected-example-failure-github.txt
       - name: Run slangc tests
-        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm'
+        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && matrix.platform != 'wasm-cpplib'
         run: |
           PATH=$bin_dir:$PATH tools/slangc-test/test.sh
       - name: Test Slang via glsl
-        if: steps.filter.outputs.should-run == 'true' && matrix.full-gpu-tests && matrix.platform != 'wasm' && matrix.config != 'debug'
+        if: steps.filter.outputs.should-run == 'true' && matrix.full-gpu-tests && matrix.platform != 'wasm' && matrix.platform != 'wasm-cpplib' && matrix.config != 'debug'
         run: |
           export SLANG_RUN_SPIRV_VALIDATION=1
           export SLANG_USE_SPV_SOURCE_LANGUAGE_UNKNOWN=1
@@ -252,7 +268,7 @@ jobs:
             -skip-reference-image-generation \
             -show-adapter-info
       - name: slang-rhi tests
-        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && matrix.full-gpu-tests
+        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && matrix.platform != 'wasm-cpplib' && matrix.full-gpu-tests
         shell: pwsh
         run: |
           if (!(Test-Path -Path "external/slang-rhi/build")) {
@@ -277,7 +293,7 @@ jobs:
               exit 1
           }
       - name: Run slangpy tests
-        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && matrix.full-gpu-tests
+        if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && matrix.platform != 'wasm' && matrix.platform != 'wasm-cpplib' && matrix.full-gpu-tests
         shell: pwsh
         run: |
           python --version
