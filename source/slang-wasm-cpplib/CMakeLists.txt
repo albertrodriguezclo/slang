@@ -28,5 +28,9 @@ if(EMSCRIPTEN)
             "-s" "LINKABLE=1"
             "-s" "EXPORT_ALL=1"
     )
+    # Install the header for consumption
+    install(FILES slang-wasm-cpplib.h
+            DESTINATION include
+            RENAME slang-wasm.h)
 endif()
 
