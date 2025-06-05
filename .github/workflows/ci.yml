@@ -172,8 +172,8 @@ jobs:
               cmake --workflow --preset generators --fresh
               mkdir generators
               cmake --install build --config Release --component generators --prefix generators
-              emcmake cmake -DSLANG_GENERATORS_PATH=generators/bin --preset emscripten -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
-              cmake --build --preset emscripten --config "$cmake_config" --target slang-wasm-cpplib
+              emcmake cmake -DSLANG_GENERATORS_PATH=generators/bin --preset emscripten-raw -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
+              cmake --build --preset emscripten-raw --config "$cmake_config" --target slang-wasm-cpplib
           else
             if [[ "${{ matrix.os }}" =~ "windows" && "${{ matrix.config }}" != "release" && "${{ matrix.config }}" != "releaseWithDebugInfo" ]]; then
               # Doing a debug build will try to link against a release built llvm, this
