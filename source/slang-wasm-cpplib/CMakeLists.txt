@@ -24,13 +24,18 @@ if(EMSCRIPTEN)
             slang-wasm-cpplib
             PUBLIC
             "-s" "WASM=1"
-            "-s" "SIDE_MODULE=1"
+#           "-s" "SIDE_MODULE=1"
             "-s" "LINKABLE=1"
             "-s" "EXPORT_ALL=1"
     )
-    # Install the header for consumption
+    # Install the library and header for distribution
+    install(TARGETS slang-wasm-cpplib
+            ARCHIVE DESTINATION lib
+            COMPONENT slang-wasm-cpplib)
+
     install(FILES slang-wasm-cpplib.h
             DESTINATION include
-            RENAME slang-wasm.h)
+            COMPONENT slang-wasm-cpplib)
+
 endif()
 
