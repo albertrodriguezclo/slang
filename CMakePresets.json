@@ -41,7 +41,7 @@
       "name": "emscripten-raw",
       "description": "Emscripten-based Wasm build with all symbols exported",
       "generator": "Ninja Multi-Config",
-      "binaryDir": "${sourceDir}/build.em.raw",
+      "binaryDir": "${sourceDir}/build.em",
       "cacheVariables": {
         "SLANG_SLANG_LLVM_FLAVOR": "DISABLE",
         "SLANG_ENABLE_AFTERMATH": "OFF",
@@ -52,10 +52,9 @@
         "SLANG_ENABLE_SLANG_RHI": "OFF",
         "SLANG_ENABLE_SPLIT_DEBUG_INFO": "OFF",
         "SLANG_ENABLE_TESTS": "OFF",
-        "CMAKE_C_FLAGS_INIT": "-fwasm-exceptions -Os -pthread",
-        "CMAKE_CXX_FLAGS_INIT": "-fwasm-exceptions -Os -pthread",
-        "CMAKE_EXE_LINKER_FLAGS": "-sASSERTIONS -sALLOW_MEMORY_GROWTH -fwasm-exceptions --export=__cpp_exception -sEXPORTED_FUNCTIONS=ALL",
-        "CMAKE_SHARED_LINKER_FLAGS": "-sASSERTIONS -sALLOW_MEMORY_GROWTH -fwasm-exceptions --export=__cpp_exception -sEXPORTED_FUNCTIONS=ALL"
+        "CMAKE_C_FLAGS_INIT": "-fwasm-exceptions -Os",
+        "CMAKE_CXX_FLAGS_INIT": "-fwasm-exceptions -Os",
+        "CMAKE_EXE_LINKER_FLAGS": "-sASSERTIONS -sALLOW_MEMORY_GROWTH -fwasm-exceptions --export=__cpp_exception"
       }
     },
     {

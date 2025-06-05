@@ -26,7 +26,6 @@ if(EMSCRIPTEN)
             "-s" "WASM=1"
             "-s" "SIDE_MODULE=1"
             "-s" "LINKABLE=1"
-            "-s" "EXPORT_ALL=1"
     )
     # Install the library and header for distribution
     install(TARGETS slang-wasm-cpplib
