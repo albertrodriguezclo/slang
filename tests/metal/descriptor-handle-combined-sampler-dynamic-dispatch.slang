@@ -75,29 +75,37 @@ void computeMain(uint3 tid: SV_DispatchThreadID)
 
 // TexLight: the texture ID in field0/field1, the sampler ID in field2/field3.
 // CHECK-LABEL: packAnyValue24_[[#]](const TexLight_[[#]] thread*
-// CHECK: ulong [[TEX0:_S[0-9]+]] = _slang_reinterpretBits<ulong>({{.*}}texture_[[#]])
+// CHECK: texture2d<float, access::sample> [[TEXV0:_S[0-9]+]] = {{.*}}->texture_[[#]];
+// CHECK: sampler [[SMPV0:_S[0-9]+]] = {{.*}}->sampler_[[#]];
+// CHECK: ulong [[TEX0:_S[0-9]+]] = *(thread ulong*)(&[[TEXV0]]);
 // CHECK: field0_[[#]] = uint([[TEX0]])
 // CHECK: field1_[[#]] = [[TEX0HI:_S[0-9]+]]
-// CHECK: ulong [[SMP0:_S[0-9]+]] = _slang_reinterpretBits<ulong>(
+// CHECK: ulong [[SMP0:_S[0-9]+]] = *(thread ulong*)(&[[SMPV0]]);
 // CHECK: field2_[[#]] = uint([[SMP0]])
 // CHECK: field3_[[#]] =
 // CHECK-LABEL: unpackAnyValue24_[[#]](
-// CHECK: Sampler2D_[[#]] [[H0:_S[0-9]+]] = { _slang_reinterpretBits<texture2d<float, access::sample>>(ulong({{.*}}field0_[[#]]) | (ulong({{.*}}field1_[[#]]) << 32U)), _slang_reinterpretBits<sampler>(ulong({{.*}}field2_[[#]]) | (ulong({{.*}}field3_[[#]]) << 32U)) };
+// CHECK: ulong [[TH0:_S[0-9]+]] = ulong({{.*}}field0_[[#]]) | (ulong({{.*}}field1_[[#]]) << 32U);
+// CHECK: ulong [[SH0:_S[0-9]+]] = ulong({{.*}}field2_[[#]]) | (ulong({{.*}}field3_[[#]]) << 32U);
+// CHECK: Sampler2D_[[#]] [[H0:_S[0-9]+]] = { *(thread texture2d<float, access::sample>*)(&[[TH0]]), *(thread sampler*)(&[[SH0]]) };
 // CHECK: tex_[[#]] = [[H0]];
 
 // ScaledTexLight: `scale` in field0, then the texture ID in field1/field2 and the sampler ID in
 // field3/field4.
 // CHECK-LABEL: packAnyValue24_[[#]](const ScaledTexLight_[[#]] thread*
 // CHECK: field0_[[#]] = as_type<uint>({{.*}}scale_[[#]])
-// CHECK: ulong [[TEX1:_S[0-9]+]] = _slang_reinterpretBits<ulong>({{.*}}texture_[[#]])
+// CHECK: texture2d<float, access::sample> [[TEXV1:_S[0-9]+]] = {{.*}}->texture_[[#]];
+// CHECK: sampler [[SMPV1:_S[0-9]+]] = {{.*}}->sampler_[[#]];
+// CHECK: ulong [[TEX1:_S[0-9]+]] = *(thread ulong*)(&[[TEXV1]]);
 // CHECK: field1_[[#]] = uint([[TEX1]])
 // CHECK: field2_[[#]] =
-// CHECK: ulong [[SMP1:_S[0-9]+]] = _slang_reinterpretBits<ulong>(
+// CHECK: ulong [[SMP1:_S[0-9]+]] = *(thread ulong*)(&[[SMPV1]]);
 // CHECK: field3_[[#]] = uint([[SMP1]])
 // CHECK: field4_[[#]] =
 // CHECK-LABEL: unpackAnyValue24_[[#]](
 // CHECK: scale_[[#]] = as_type<float>({{.*}}field0_[[#]])
-// CHECK: Sampler2D_[[#]] [[H1:_S[0-9]+]] = { _slang_reinterpretBits<texture2d<float, access::sample>>(ulong({{.*}}field1_[[#]]) | (ulong({{.*}}field2_[[#]]) << 32U)), _slang_reinterpretBits<sampler>(ulong({{.*}}field3_[[#]]) | (ulong({{.*}}field4_[[#]]) << 32U)) };
+// CHECK: ulong [[TH1:_S[0-9]+]] = ulong({{.*}}field1_[[#]]) | (ulong({{.*}}field2_[[#]]) << 32U);
+// CHECK: ulong [[SH1:_S[0-9]+]] = ulong({{.*}}field3_[[#]]) | (ulong({{.*}}field4_[[#]]) << 32U);
+// CHECK: Sampler2D_[[#]] [[H1:_S[0-9]+]] = { *(thread texture2d<float, access::sample>*)(&[[TH1]]), *(thread sampler*)(&[[SH1]]) };
 // CHECK: tex_[[#]] = [[H1]];
 
 // LIB: define void @computeMain

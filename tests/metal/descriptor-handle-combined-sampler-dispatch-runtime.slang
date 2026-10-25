@@ -84,5 +84,7 @@ void computeMain()
 
 // The texture and sampler IDs are packed into a uint4 and the combined handle is rebuilt from it,
 // texture first.
-// MSL: Sampler2D_[[#]] {{.*}} = { _slang_reinterpretBits<texture2d<float, access::sample>>(ulong({{.*}}field0_[[#]]) | (ulong({{.*}}field1_[[#]]) << 32U)), _slang_reinterpretBits<sampler>(ulong({{.*}}field2_[[#]]) | (ulong({{.*}}field3_[[#]]) << 32U)) };
+// MSL: ulong [[TR:_S[0-9]+]] = ulong({{.*}}field0_[[#]]) | (ulong({{.*}}field1_[[#]]) << 32U);
+// MSL: ulong [[SR:_S[0-9]+]] = ulong({{.*}}field2_[[#]]) | (ulong({{.*}}field3_[[#]]) << 32U);
+// MSL: Sampler2D_[[#]] {{.*}} = { *(thread texture2d<float, access::sample>*)(&[[TR]]), *(thread sampler*)(&[[SR]]) };
 // MSL-NOT: (ulong)(
